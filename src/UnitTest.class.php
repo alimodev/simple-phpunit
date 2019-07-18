@@ -137,13 +137,35 @@ class UnitTest
   private function generateStats()
   {
     $output = '';
+    $output .= $this->generateStatsSummary();
+    $output .= $this->generateStatsFailedReport();
+    $output .= $this->generateStatsResourceUsage();
+
+    return $output;
+  }
+
+  private function generateStatsSummary()
+  {
+    $countFailedTests = count($this->failedTests);
+
+    $output = '';
     $output .= '<h2>Unit Test Stats</h2>';
     $output .= '<hr />';
     $output .= '<b>Total Tests: ' . count($this->testFunctions) . "</b><br />";
-    $output .= '<b style="color:#8bc34a">Passed Tests: ' . count($this->passedTests) . "</b><br />";
-    $countFailedTests = count($this->failedTests);
-    $output .= '<b style="color:red">Failed Tests: ' . $countFailedTests . "</b><br />";
+    $output .= '<b style="color:#8bc34a">Passed Tests: ' .
+      count($this->passedTests) . "</b><br />";
+    $output .= '<b style="color:red">Failed Tests: ' . $countFailedTests .
+      "</b><br />";
     $output .= '<hr />';
+
+    return $output;
+  }
+
+  private function generateStatsFailedReport()
+  {
+    $countFailedTests = count($this->failedTests);
+
+    $output = '';
     if ($countFailedTests > 0)
     {
       $output .= '<h4 style="color:#bd144d">Failed Test:</h4>';
@@ -155,11 +177,22 @@ class UnitTest
       $output .= '</div>';
       $output .= '<hr />';
     }
+
+    return $output;
+  }
+
+  private function generateStatsResourceUsage()
+  {
+    $output = '';
     $output .= '<div style="color:#454545">';
-    $output .= 'Elapsed Test Time: ' . $this->elapsedTestTime . "<br />";
-    $output .= 'Memory Usage: ' . $this->formatBytes($this->memoryUsage) . "<br />";
-    $output .= 'Peak Memory Usage: ' . $this->formatBytes($this->peakMemoryUsage) . "<br />";
+    $output .= 'Elapsed Test Time: ' . $this->elapsedTestTime .
+      "<br />";
+    $output .= 'Memory Usage: ' . $this->formatBytes($this->memoryUsage) .
+      "<br />";
+    $output .= 'Peak Memory Usage: ' .
+      $this->formatBytes($this->peakMemoryUsage) . "<br />";
     $output .= '</div>';
+
     return $output;
   }
 
