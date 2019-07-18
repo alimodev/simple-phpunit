@@ -1,6 +1,6 @@
 <?php
 
-require_once('UnitTest.class.php');
+require_once('../src/UnitTest.class.php');
 require_once('testFunctions.php');
 
 $unit = new UnitTest();
@@ -28,3 +28,5 @@ $unit->printTests();
 $unit->printStats();
 
 ?>
+<br /><hr />
+<a href="../index.php">Go back..</a>
