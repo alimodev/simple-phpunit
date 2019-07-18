@@ -3,6 +3,7 @@
 /**
  * Unit Testing Class
  * by ALireza Mortazavi
+ * https://github.com/alimodev/
  */
 class UnitTest
 {
@@ -12,7 +13,9 @@ class UnitTest
   public $maxExecutionTime = 100; // in seconds, 0 for unlimited
   public $memoryLimit = '128M';
   public $errorReporting = true;
+  public $debugging = false;
 
+  private $testGroupName = '';
   private $elapsedTestTime = 0;
   private $memoryUsage = 0;
   private $peakMemoryUsage = 0;
@@ -20,9 +23,10 @@ class UnitTest
   private $passedTests = array();
   private $failedTests = array();
 
-  function __construct()
+  function __construct($instanceName = '')
   {
     $this->configEnviroment();
+    $this->testGroupName = $instanceName;
   }
 
   /**
@@ -39,9 +43,14 @@ class UnitTest
     // do all tests
     $this->runAllTests();
     // calc time and memory usage
-    $this->elapsedTestTime = $this->calcElapsedTime($startTime);
-    $this->memoryUsage = memory_get_usage();
-    $this->peakMemoryUsage = memory_get_peak_usage();
+    $this->calcElapsedTime($startTime);
+    $this->calcMemoryUsage();
+  }
+
+  public function runLastTest()
+  {
+    $this->removeAllTestsButLast();
+    $this->run();
   }
 
   public function addTestFunc($functionName, ...$functionArgs)
@@ -65,6 +74,21 @@ class UnitTest
     unset($this->testFunctions);
   }
 
+  public function removeAllTestsButLast()
+  {
+    $countTests = count($this->testFunctions);
+    $lastTestToKeep = $countTests - 1;
+    $testPointer = 0;
+    foreach($this->testFunctions as $testFuncName => $testFuncArgs)
+    {
+      if ($testPointer != $lastTestToKeep)
+      {
+        unset($this->testFunctions[$testFuncName]);
+      }
+      $testPointer++;
+    }
+  }
+
   public function getTests()
   {
     return $this->testFunctions;
@@ -72,13 +96,7 @@ class UnitTest
 
   public function printTests()
   {
-    echo '<h2>Unit Tests</h2>';
-    echo '<ul>';
-    foreach($this->getTests() as $testName => $testArg)
-    {
-      echo '<li>' . $testName . "</li>";
-    }
-    echo '</ul>';
+    echo $this->generateTestsList();
   }
 
   public function printStats()
@@ -129,13 +147,34 @@ class UnitTest
   {
     foreach($this->getTests() as $testName => $testArg)
     {
-      $result = call_user_func($testName, ...$testArg);
-      if ($result === false)
-      {
-        $this->failedTests[$testName] = $result;
-      } else {
-        $this->passedTests[$testName] = $result;
-      }
+      ob_start();
+      $runResult = call_user_func($testName, ...$testArg);
+      $bufferedOutput = ob_get_contents();
+      ob_end_clean();
+
+      $this->printDebuggingInfo($testName, $bufferedOutput);
+      $this->assert($testName, $runResult, false);
+    }
+  }
+
+  private function assert($testName, $runResult, $assertCondition)
+  {
+    if ($runResult === $assertCondition)
+    {
+      $this->failedTests[$testName] = $runResult;
+    } else {
+      $this->passedTests[$testName] = $runResult;
+    }
+  }
+
+  private function printDebuggingInfo($testName, $bufferedOutput)
+  {
+    if ($this->debugging && !empty($bufferedOutput))
+    {
+      echo '<b style="color:blue">[ Debug ] ';
+      echo '[ ' . date('Y/m/d H:i:s') . ' ] ' . $testName . ' : </b><br />';
+      echo $bufferedOutput;
+      echo '<br /><br />';
     }
   }
 
@@ -145,12 +184,36 @@ class UnitTest
 
     if ($this->allTestsPassed())
     {
-      $output .= '<h1 style="color:green">All Unit Tests Passed Successfully! ('.
+      $output .= '<h1 style="color:green">';
+      $output .= (!empty($this->testGroupName)) ?
+        '['.$this->testGroupName.'] ' : '';
+      $output .= 'All Unit Tests Passed Successfully! ('.
         $this->passedTestsCount().')</h1>';
     } else {
-      $output .= '<h1 style="color:red">Test Failed! ('.
+      $output .= '<h1 style="color:red">';
+      $output .= (!empty($this->testGroupName)) ?
+        '['.$this->testGroupName.'] ' : '';
+      $output .= 'Test Failed! ('.
         $this->failedTestsCount().')</h1>';
     }
+
+    return $output;
+  }
+
+  private function generateTestsList()
+  {
+    $output = '';
+
+    $output .= '<h2>';
+    $output .= (!empty($this->testGroupName)) ?
+      '['.$this->testGroupName.'] ' : '';
+    $output .= 'Unit Tests</h2>';
+    $output .= '<ul>';
+    foreach($this->getTests() as $testName => $testArg)
+    {
+      $output .= '<li>' . $testName . "</li>";
+    }
+    $output .= '</ul>';
 
     return $output;
   }
@@ -170,7 +233,10 @@ class UnitTest
     $countFailedTests = count($this->failedTests);
 
     $output = '';
-    $output .= '<h2>Unit Test Stats</h2>';
+    $output .= '<h2>';
+    $output .= (!empty($this->testGroupName)) ?
+      '['.$this->testGroupName.'] ' : '';
+    $output .= 'Unit Test Stats</h2>';
     $output .= '<hr />';
     $output .= '<b>Total Tests: ' . count($this->testFunctions) . "</b><br />";
     $output .= '<b style="color:#8bc34a">Passed Tests: ' .
@@ -213,6 +279,7 @@ class UnitTest
     $output .= 'Peak Memory Usage: ' .
       $this->formatBytes($this->peakMemoryUsage) . "<br />";
     $output .= '</div>';
+    $output .= '<hr /><br /><br />';
 
     return $output;
   }
@@ -234,7 +301,7 @@ class UnitTest
 
   private function calcElapsedTime($startTime)
   {
-    // Get the difference between start and end in microseconds, as a float value
+    // Get the difference between start and end in microseconds,as a float value
     $diff = microtime(true) - $startTime;
 
     // Break the difference into seconds and microseconds
@@ -245,7 +312,13 @@ class UnitTest
     $final = strftime('%T', mktime(0, 0, $sec)) .
       str_replace('0.', '.', sprintf('%.3f', $micro));
 
-    return $final;
+    $this->elapsedTestTime =  $final;
+  }
+
+  private function calcMemoryUsage()
+  {
+    $this->memoryUsage = memory_get_usage();
+    $this->peakMemoryUsage = memory_get_peak_usage();
   }
 }
 

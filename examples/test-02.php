@@ -1,16 +1,23 @@
 <?php
 
+/**
+ * Basic Usage Example
+ */
+
 require_once('../src/UnitTest.class.php');
 require_once('testFunctions.php');
 
-$unit = new UnitTest();
+$unit = new UnitTest('Basic');
 
-$unit->addTestFunc('testFunc1');
-$unit->addTestFunc('testFunc2');
-$unit->addTestFunc('testFunc3');
-$unit->addTestFunc('testFunc4', '#4');
+$unit->addTestFunc('testThatReturnsTrue');
+$unit->addTestFunc('testThatReturnsFalse');
+$unit->addTestFunc('testThatReturnsNull');
+$unit->addTestFunc('testThatReturnsString');
+$unit->addTestFunc('testThatReturnsNumber');
+$unit->addTestFunc('testWithInputArgs', 'Ali');
+$unit->addTestFunc('timelyTestThatReturnsTrue');
 
-$unit->removeTestFunc('testFunc2');
+$unit->removeTestFunc('testThatReturnsNull');
 
 $unit->run();
 
@@ -19,5 +26,5 @@ $unit->printTests();
 $unit->printStats();
 
 ?>
-<br /><hr />
+<br />
 <a href="../index.php">Go back..</a>

@@ -1,31 +1,47 @@
 <?php
 
-// some delay and pass
-function testFunc1()
+function testThatReturnsTrue()
 {
-  for($i=0;$i<3;$i++)
-  {
-    usleep(mt_rand(100,200)*1000);
-  }
+  // some tests to do and finally:
   return true;
 }
 
-// failed test
-function testFunc2()
+function testThatReturnsFalse()
 {
+  // some tests to do and finally:
   return false;
 }
 
-// passed test
-function testFunc3()
+function testThatReturnsNull()
 {
+  // some tests to do and finally:
   return null;
 }
 
-// passed test with output
-function testFunc4($name)
+function testThatReturnsString()
 {
-  echo 'Output Test ' . $name;
+  // some tests to do and finally:
+  return 'Hello World!';
+}
+
+function testThatReturnsNumber()
+{
+  // some tests to do and finally:
+  $daysInTheWeek = 7;
+  return $daysInTheWeek;
+}
+
+function testWithInputArgs($name = 'Someone')
+{
+  // some tests to do and finally:
+  echo 'Hello ' . $name . '!';
+}
+
+function timelyTestThatReturnsTrue()
+{
+  // some tests to do and finally:
+  usleep(mt_rand(300,600)*1000);
+  return true;
 }
 
 ?>
