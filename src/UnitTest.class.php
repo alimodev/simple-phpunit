@@ -105,6 +105,11 @@ class UnitTest
     return count($this->failedTests);
   }
 
+  public function printSummary()
+  {
+    echo $this->generateSummary();
+  }
+
   /**
    * Private Methods
    */
@@ -132,6 +137,22 @@ class UnitTest
         $this->passedTests[$testName] = $result;
       }
     }
+  }
+
+  private function generateSummary()
+  {
+    $output = '';
+
+    if ($this->allTestsPassed())
+    {
+      $output .= '<h1 style="color:green">All Unit Tests Passed Successfully! ('.
+        $this->passedTestsCount().')</h1>';
+    } else {
+      $output .= '<h1 style="color:red">Test Failed! ('.
+        $this->failedTestsCount().')</h1>';
+    }
+
+    return $output;
   }
 
   private function generateStats()

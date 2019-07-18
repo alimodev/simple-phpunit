@@ -6,4 +6,7 @@
 
 ?>
 <h3>'simple-phpunit' examples:</h3>
-<a href="examples/test-01.php">01. Basic Usage</a>
+<ol>
+  <li><a href="examples/test-01.php">Basic Usage</a></li>
+  <li><a href="examples/test-02.php">Essential</a></li>
+</ol>

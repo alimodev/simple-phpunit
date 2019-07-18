@@ -10,8 +10,12 @@ $unit->addTestFunc('testFunc2');
 $unit->addTestFunc('testFunc3');
 $unit->addTestFunc('testFunc4', '#4');
 
+$unit->removeTestFunc('testFunc2');
+
 $unit->run();
 
+$unit->printSummary();
+$unit->printTests();
 $unit->printStats();
 
 ?>
