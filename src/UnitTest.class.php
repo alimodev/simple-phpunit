@@ -55,15 +55,32 @@ class UnitTest
 
   public function addTestFunc($functionName, ...$functionArgs)
   {
-    if (function_exists($functionName))
+    if (
+      function_exists($functionName) &&
+      !$this->testExists($functionName)
+      )
     {
       $this->testFunctions[$functionName] = $functionArgs;
     }
   }
 
+  public function addTestFuncsWithPattern($namePattern = '*', ...$args)
+  {
+    $allDefinedFuncs = get_defined_functions();
+    $allUserDefinedFuncs = $allDefinedFuncs['user'];
+
+    foreach ($allUserDefinedFuncs as $functionName)
+    {
+      if (fnmatch($namePattern, $functionName, FNM_CASEFOLD))
+      {
+        $this->addTestFunc($functionName, ...$args);
+      }
+    }
+  }
+
   public function removeTestFunc($functionName)
   {
-    if (in_array($functionName, array_keys($this->testFunctions)))
+    if ($this->testExists($functionName))
     {
       unset($this->testFunctions[$functionName]);
     }
@@ -165,6 +182,11 @@ class UnitTest
     } else {
       $this->passedTests[$testName] = $runResult;
     }
+  }
+
+  private function testExists($testName)
+  {
+    return in_array($testName, array_keys($this->testFunctions));
   }
 
   private function printDebuggingInfo($testName, $bufferedOutput)
