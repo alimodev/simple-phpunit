@@ -9,12 +9,18 @@ require_once('testFunctions.php');
 
 $unit = new UnitTest();
 
+$unit->addTestFunc('testThatReturnsTrue');
+$unit->addTestFunc('testThatReturnsFalse');
+$unit->addTestFunc('testThatReturnsNull');
 $unit->addTestFunc('testThatReturnsString');
 $unit->addTestFunc('testThatReturnsNumber');
 $unit->addTestFunc('testWithInputArgs', 'Ali');
+$unit->addTestFunc('timelyTestThatReturnsTrue');
 
 
 $unit->runLastTest();
+$unit->runFirstTest();
+$unit->runThisTest('testThatReturnsNumber');
 
 $unit->printSummary();
 $unit->printTests();

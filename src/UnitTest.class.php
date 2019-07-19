@@ -37,11 +37,11 @@ class UnitTest
     $this->configEnviroment();
   }
 
-  public function run()
+  public function run($testsToRun = '')
   {
     $startTime = microtime(true);
     // do all tests
-    $this->runAllTests();
+    $this->runAllTests($testsToRun);
     // calc time and memory usage
     $this->calcElapsedTime($startTime);
     $this->calcMemoryUsage();
@@ -49,8 +49,22 @@ class UnitTest
 
   public function runLastTest()
   {
-    $this->removeAllTestsButLast();
-    $this->run();
+    $lastTest = array_keys($this->testFunctions)[count($this->testFunctions)-1];
+    $filteredTests = $this->filterTests($lastTest);
+    $this->run($filteredTests);
+  }
+
+  public function runFirstTest()
+  {
+    $firstTest = array_keys($this->testFunctions)[0];
+    $filteredTests = $this->filterTests($firstTest);
+    $this->run($filteredTests);
+  }
+
+  public function runThisTest($testName)
+  {
+    $filteredTests = $this->filterTests($testName);
+    $this->run($filteredTests);
   }
 
   public function addTestFunc($functionName, ...$functionArgs)
@@ -89,21 +103,6 @@ class UnitTest
   public function removeAllTests()
   {
     unset($this->testFunctions);
-  }
-
-  public function removeAllTestsButLast()
-  {
-    $countTests = count($this->testFunctions);
-    $lastTestToKeep = $countTests - 1;
-    $testPointer = 0;
-    foreach($this->testFunctions as $testFuncName => $testFuncArgs)
-    {
-      if ($testPointer != $lastTestToKeep)
-      {
-        unset($this->testFunctions[$testFuncName]);
-      }
-      $testPointer++;
-    }
   }
 
   public function getTests()
@@ -160,9 +159,13 @@ class UnitTest
      }
   }
 
-  private function runAllTests()
+  private function runAllTests($testsToRun)
   {
-    foreach($this->getTests() as $testName => $testArg)
+    if (empty($testsToRun))
+    {
+      $testsToRun = $this->getTests();
+    }
+    foreach($testsToRun as $testName => $testArg)
     {
       ob_start();
       $runResult = call_user_func($testName, ...$testArg);
@@ -189,11 +192,19 @@ class UnitTest
     return in_array($testName, array_keys($this->testFunctions));
   }
 
+  private function filterTests($testName)
+  {
+    return array_filter($this->testFunctions,
+      function($key) use($testName){
+          return $key == $testName;
+    }, ARRAY_FILTER_USE_KEY);
+  }
+
   private function printDebuggingInfo($testName, $bufferedOutput)
   {
     if ($this->debugging && !empty($bufferedOutput))
     {
-      echo '<b style="color:blue">[ Debug ] ';
+      echo '<b style="color:#f5980f">[ Debug ] ';
       echo '[ ' . date('Y/m/d H:i:s') . ' ] ' . $testName . ' : </b><br />';
       echo $bufferedOutput;
       echo '<br /><br />';
@@ -263,9 +274,11 @@ class UnitTest
     $output .= '<table>';
     $output .= '<tr style="color:#444"><td>Total Tests:</td>';
 		$output .= '<td>' . count($this->testFunctions) . '</td>';
-    $output .= '</tr><tr style="color:#8bc34a"><td>Passed Tests:</td>';
+    $output .= '</tr><tr style="color:#0d0df3"><td>Executed Tests:</td>';
+    $output .= '<td>' . (count($this->passedTests) + count($this->failedTests)) . '</td>';
+    $output .= '</tr><tr style="color:#609424"><td>Passed Tests:</td>';
 		$output .= '<td>' . count($this->passedTests) . '</td>';
-    $output .= '</tr><tr style="color:red"><td>Failed Tests:</td>';
+    $output .= '</tr><tr style="color:#e21919"><td>Failed Tests:</td>';
 		$output .= '<td>' . count($this->failedTests) . '</td>';
     $output .= '</tr></table>';
     $output .= '<hr />';
