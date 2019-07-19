@@ -144,6 +144,22 @@ class UnitTest
     echo $this->generateSummary();
   }
 
+  public function getReportArray()
+  {
+    return $this->generateReportArray();
+  }
+
+  public function getJsonReport()
+  {
+    return json_encode($this->getReportArray());
+  }
+
+  public function printJsonReport()
+  {
+    header('Content-type: application/json');
+    echo $this->getJsonReport();
+  }
+
   /**
    * Private Methods
    */
@@ -262,6 +278,24 @@ class UnitTest
     $output .= $this->generateStatsResourceUsage();
 
     return $output;
+  }
+
+  private function generateReportArray()
+  {
+    $report = array();
+
+    $report['allTestsPassed'] = $this->allTestsPassed();
+    $report['testGroupName'] = $this->testGroupName;
+    $report['totalTestsCount'] = count($this->testFunctions);
+    $report['ExecutedTestsCount'] = (count($this->passedTests) + count($this->failedTests));
+    $report['passedTestsCount'] = count($this->passedTests);
+    $report['failedTestsCount'] = count($this->failedTests);
+    $report['failedTests'] = $this->failedTests;
+    $report['elapsedTestTime'] = $this->elapsedTestTime;
+    $report['memoryUsage'] = $this->formatBytes($this->memoryUsage);
+    $report['peakMemoryUsage'] = $this->formatBytes($this->peakMemoryUsage);
+
+    return $report;
   }
 
   private function generateStatsSummary()
