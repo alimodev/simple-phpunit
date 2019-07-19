@@ -1,5 +1,7 @@
 <?php
 
+require_once('testHelpers.php');
+
 function testThatReturnsTrue()
 {
   // some tests to do and finally:
@@ -40,7 +42,7 @@ function testWithInputArgs($name = 'Someone')
 function timelyTestThatReturnsTrue()
 {
   // some tests to do and finally:
-  usleep(mt_rand(300,600)*1000);
+  randomWait();
   return true;
 }
 
