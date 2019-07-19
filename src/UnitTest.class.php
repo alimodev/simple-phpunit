@@ -178,6 +178,12 @@ class UnitTest
     }
   }
 
+  private function getTestGroupNameIfExists()
+  {
+    return (!empty($this->testGroupName)) ?
+      '['.$this->testGroupName.'] ' : '';
+  }
+
   private function generateSummary()
   {
     $output = '';
@@ -185,14 +191,12 @@ class UnitTest
     if ($this->allTestsPassed())
     {
       $output .= '<h1 style="color:green">';
-      $output .= (!empty($this->testGroupName)) ?
-        '['.$this->testGroupName.'] ' : '';
+      $output .= $this->getTestGroupNameIfExists();
       $output .= 'All Unit Tests Passed Successfully! ('.
         $this->passedTestsCount().')</h1>';
     } else {
       $output .= '<h1 style="color:red">';
-      $output .= (!empty($this->testGroupName)) ?
-        '['.$this->testGroupName.'] ' : '';
+      $output .= $this->getTestGroupNameIfExists();
       $output .= 'Test Failed! ('.
         $this->failedTestsCount().')</h1>';
     }
@@ -205,8 +209,7 @@ class UnitTest
     $output = '';
 
     $output .= '<h2>';
-    $output .= (!empty($this->testGroupName)) ?
-      '['.$this->testGroupName.'] ' : '';
+    $output .= $this->getTestGroupNameIfExists();
     $output .= 'Unit Tests</h2>';
     $output .= '<ul>';
     foreach($this->getTests() as $testName => $testArg)
@@ -230,19 +233,19 @@ class UnitTest
 
   private function generateStatsSummary()
   {
-    $countFailedTests = count($this->failedTests);
-
     $output = '';
     $output .= '<h2>';
-    $output .= (!empty($this->testGroupName)) ?
-      '['.$this->testGroupName.'] ' : '';
+    $output .= $this->getTestGroupNameIfExists();
     $output .= 'Unit Test Stats</h2>';
     $output .= '<hr />';
-    $output .= '<b>Total Tests: ' . count($this->testFunctions) . "</b><br />";
-    $output .= '<b style="color:#8bc34a">Passed Tests: ' .
-      count($this->passedTests) . "</b><br />";
-    $output .= '<b style="color:red">Failed Tests: ' . $countFailedTests .
-      "</b><br />";
+    $output .= '<table>';
+    $output .= '<tr style="color:#444"><td>Total Tests:</td>';
+		$output .= '<td>' . count($this->testFunctions) . '</td>';
+    $output .= '</tr><tr style="color:#8bc34a"><td>Passed Tests:</td>';
+		$output .= '<td>' . count($this->passedTests) . '</td>';
+    $output .= '</tr><tr style="color:red"><td>Failed Tests:</td>';
+		$output .= '<td>' . count($this->failedTests) . '</td>';
+    $output .= '</tr></table>';
     $output .= '<hr />';
 
     return $output;
@@ -271,15 +274,33 @@ class UnitTest
   private function generateStatsResourceUsage()
   {
     $output = '';
-    $output .= '<div style="color:#454545">';
-    $output .= 'Elapsed Test Time: ' . $this->elapsedTestTime .
-      "<br />";
-    $output .= 'Memory Usage: ' . $this->formatBytes($this->memoryUsage) .
-      "<br />";
-    $output .= 'Peak Memory Usage: ' .
-      $this->formatBytes($this->peakMemoryUsage) . "<br />";
-    $output .= '</div>';
+    $output .= '<table style="color:#333"><tr>';
+    $output .= '<td>Elapsed Test Time:</td>';
+    $output .= '<td>' . $this->elapsedTestTime . '</td>';
+    $output .= '</tr><tr><td>Memory Usage:</td>';
+    $output .= '<td>' . $this->formatBytes($this->memoryUsage) . '</td>';
+    $output .= '</tr><tr><td>Peak Memory Usage:</td>';
+    $output .= '<td>' . $this->formatBytes($this->peakMemoryUsage) . '</td>';
+    $output .= '</tr><tr><td>Used Configs:</td>';
+    $output .= '<td>' . $this->generateConfigsString() . '</td>';
+    $output .= '</tr></table>';
     $output .= '<hr /><br /><br />';
+
+    return $output;
+  }
+
+  private function generateConfigsString()
+  {
+    $errorReportingStatus = ($this->errorReporting) ? "enabled" : "disabled";
+    $debuggingStatus = ($this->debugging) ? "enabled" : "disabled";
+    $maxExecutionTime = ($this->maxExecutionTime != 0) ?
+      $this->maxExecutionTime . 's' : 'unlimited';
+
+    $output = '';
+    $output .= '( Max Execution Time: ' . $maxExecutionTime . ' - ';
+    $output .= 'Memory Limit: ' . $this->memoryLimit . ' - ';
+    $output .= 'Error Reporting: ' . $errorReportingStatus . ' - ';
+    $output .= 'Debugging: ' . $debuggingStatus . ' )';
 
     return $output;
   }
