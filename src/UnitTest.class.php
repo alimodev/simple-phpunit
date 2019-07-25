@@ -201,7 +201,7 @@ class UnitTest
       $bufferedOutput = ob_get_contents();
       ob_end_clean();
 
-      $this->printDebuggingInfo($testName, $bufferedOutput);
+      $this->printDebuggingInfo($formattedTestName, $bufferedOutput);
       $this->assert($formattedTestName, $testId, $runResult);
     }
   }
@@ -382,6 +382,7 @@ class UnitTest
       foreach ($this->failedTests as $failedTestName => $failedTestResult)
       {
         if ($failedTestResult === false) {$failedTestResult = 'false';}
+        if ($failedTestResult === true) {$failedTestResult = 'true';}
         $output .= '<li>' . $failedTestName . ' => returned: (' .
           print_r($failedTestResult, true) . ')' . '</li>';
       }

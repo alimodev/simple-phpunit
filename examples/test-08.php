@@ -9,10 +9,14 @@ require_once('testFunctions.php');
 
 $unit = new UnitTestAsserts('Asserts');
 
-$unit->addTestFuncsWithPattern('test*')->assertFalse();
-$unit->addTestFunc('testWithInputArgs', 'arg2')->assertTrue();
-$unit->addTestFunc('testWithInputArgs', 'arg3')->assertTrue();
-$unit->addTestFunc('testWithInputArgs', 'arg4')->assertTrue();
+$unit->addTestFunc('testThatReturnsTrue')->assertTrue();
+$unit->addTestFunc('testThatReturnsFalse')->assertFalse();
+$unit->addTestFunc('testThatReturnsNull')->assertEmpty();
+$unit->addTestFunc('testThatReturnsString')->assertEquals('Hello World!');
+$unit->addTestFunc('testThatReturnsNumber')->assertNumber();
+$unit->addTestFunc('testWithInputArgs', 'Ali')->assertNotString();
+$unit->addTestFunc('timelyTestThatReturnsTrue')->assertEmpty();
+$unit->addTestFuncsWithPattern('timely*')->assertNotTrue();
 
 $unit->run();
 

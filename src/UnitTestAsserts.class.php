@@ -55,6 +55,7 @@ class UnitTestAsserts extends UnitTest
 
   protected function assert($formattedTestName, $testId, $runResult)
   {
+    $this->checkAssertStackIsOk();
     $currentAssert = $this->calledAssertsStack[$testId];
     $assertFuncName = array_keys($currentAssert)[0];
     $assertFuncArgs = $currentAssert[$assertFuncName];
@@ -69,6 +70,18 @@ class UnitTestAsserts extends UnitTest
     } else {
       $this->failedTests[$testNameWithAssertName] = $runResult;
     }
+  }
+
+  private function checkAssertStackIsOk()
+  {
+    if (
+      !empty($this->calledAssertsStack) &&
+      (count($this->calledAssertsStack) == count($this->testFunctions))
+      )
+    {
+      return true;
+    }
+    die('There is a problem in your asserts!');
   }
 
 }
