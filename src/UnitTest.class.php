@@ -19,9 +19,11 @@ class UnitTest
   private $elapsedTestTime = 0;
   private $memoryUsage = 0;
   private $peakMemoryUsage = 0;
-  private $testFunctions = array();
-  private $passedTests = array();
-  private $failedTests = array();
+  private $assertCondition = false;
+
+  protected $testFunctions = array();
+  protected $passedTests = array();
+  protected $failedTests = array();
 
   function __construct($instanceName = '')
   {
@@ -49,33 +51,36 @@ class UnitTest
 
   public function runLastTest()
   {
-    $lastTest = array_keys($this->testFunctions)[count($this->testFunctions)-1];
-    $filteredTests = $this->filterTests($lastTest);
-    $this->run($filteredTests);
+    $lastTestId = count($this->testFunctions)-1;
+    $filteredTestIds = array();
+    $filteredTestIds[] = array_keys($this->testFunctions)[$lastTestId];
+    $this->filterAndRun($filteredTestIds);
   }
 
   public function runFirstTest()
   {
-    $firstTest = array_keys($this->testFunctions)[0];
-    $filteredTests = $this->filterTests($firstTest);
-    $this->run($filteredTests);
+    $firstTestId = 0;
+    $filteredTestIds = array();
+    $filteredTestIds[] = array_keys($this->testFunctions)[$firstTestId];
+    $this->filterAndRun($filteredTestIds);
   }
 
   public function runThisTest($testName)
   {
-    $filteredTests = $this->filterTests($testName);
-    $this->run($filteredTests);
+    $filteredTestIds = array();
+    $filteredTestIds = $this->getTestArrayIdIfExists($testName);
+    $this->filterAndRun($filteredTestIds);
   }
 
   public function addTestFunc($functionName, ...$functionArgs)
   {
-    if (
-      function_exists($functionName) &&
-      !$this->testExists($functionName)
-      )
+    if (function_exists($functionName))
     {
-      $this->testFunctions[$functionName] = $functionArgs;
+      $this->testFunctions[] = array(
+        $functionName => $functionArgs,
+      );
     }
+    return $this;
   }
 
   public function addTestFuncsWithPattern($namePattern = '*', ...$args)
@@ -90,19 +95,23 @@ class UnitTest
         $this->addTestFunc($functionName, ...$args);
       }
     }
+    return $this;
   }
 
   public function removeTestFunc($functionName)
   {
-    if ($this->testExists($functionName))
+    $filteredTestIds = $this->getTestArrayIdIfExists($functionName);
+    foreach ($filteredTestIds as $testId)
     {
-      unset($this->testFunctions[$functionName]);
+      unset($this->testFunctions[$testId]);
     }
   }
 
   public function removeAllTests()
   {
     unset($this->testFunctions);
+    unset($this->passedTests);
+    unset($this->failedTests);
   }
 
   public function getTests()
@@ -181,39 +190,62 @@ class UnitTest
     {
       $testsToRun = $this->getTests();
     }
-    foreach($testsToRun as $testName => $testArg)
+    foreach($testsToRun as $testId => $testFunc)
     {
+      $testName = array_keys($testFunc)[0];
+      $testArgs = $testFunc[$testName];
+      $formattedTestName = $testName. $this->getFormattedArgs($testArgs);
+
       ob_start();
-      $runResult = call_user_func($testName, ...$testArg);
+      $runResult = call_user_func($testName, ...$testArgs);
       $bufferedOutput = ob_get_contents();
       ob_end_clean();
 
       $this->printDebuggingInfo($testName, $bufferedOutput);
-      $this->assert($testName, $runResult, false);
+      $this->assert($formattedTestName, $testId, $runResult);
     }
   }
 
-  private function assert($testName, $runResult, $assertCondition)
+  protected function assert($formattedTestName, $testId, $runResult)
   {
-    if ($runResult === $assertCondition)
+    $testNameWithAssertName = $formattedTestName . ' [asserted not ' .
+      ($this->assertCondition ? 'true' : 'false') . '] ';
+    if ($runResult === $this->assertCondition)
     {
-      $this->failedTests[$testName] = $runResult;
+      $this->failedTests[$testNameWithAssertName] = $runResult;
     } else {
-      $this->passedTests[$testName] = $runResult;
+      $this->passedTests[$testNameWithAssertName] = $runResult;
     }
   }
 
-  private function testExists($testName)
+  private function getTestArrayIdIfExists($testName)
   {
-    return in_array($testName, array_keys($this->testFunctions));
+    $filteredTestsIds = array();
+    foreach ($this->getTests() as $testId => $testFunc)
+    {
+      if (strtolower($testName) == strtolower(array_keys($testFunc)[0]))
+      {
+        $filteredTestsIds[] = $testId;
+      }
+    }
+    return $filteredTestsIds;
   }
 
-  private function filterTests($testName)
+  private function filterTests($testIds)
   {
     return array_filter($this->testFunctions,
-      function($key) use($testName){
-          return $key == $testName;
+      function($key) use($testIds){
+        foreach ($testIds as $testId)
+        {
+          return $key == $testId;
+        }
     }, ARRAY_FILTER_USE_KEY);
+  }
+
+  private function filterAndRun($filteredTestIds)
+  {
+    $filteredTests = $this->filterTests($filteredTestIds);
+    $this->run($filteredTests);
   }
 
   private function printDebuggingInfo($testName, $bufferedOutput)
@@ -259,15 +291,33 @@ class UnitTest
 
     $output .= '<h2>';
     $output .= $this->getTestGroupNameIfExists();
-    $output .= 'Unit Tests</h2>';
+    $output .= 'Unit Tests (' . count($this->getTests()) . ')</h2>';
     $output .= '<ul>';
-    foreach($this->getTests() as $testName => $testArg)
+    foreach($this->getTests() as $testFunc)
     {
-      $output .= '<li>' . $testName . "</li>";
+      $testName = array_keys($testFunc)[0];
+      $testArgs = $testFunc[$testName];
+      $output .= '<li>' . $testName . $this->getFormattedArgs($testArgs) . '</li>';
     }
     $output .= '</ul>';
 
     return $output;
+  }
+
+  private function getFormattedArgs($args)
+  {
+    return '( ' . $this->formatArgs($args) . ' )';
+  }
+
+  private function formatArgs($args)
+  {
+    $formatted = '';
+    foreach ($args as $arg)
+    {
+      $formatted .= print_r($arg, true);
+      $formatted .= ', ';
+    }
+    return trim(trim($formatted), ',');
   }
 
   private function generateStats()
@@ -331,7 +381,9 @@ class UnitTest
       $output .= '<div style="color:red"><ul>';
       foreach ($this->failedTests as $failedTestName => $failedTestResult)
       {
-        $output .= '<li>' . $failedTestName . '</li>';
+        if ($failedTestResult === false) {$failedTestResult = 'false';}
+        $output .= '<li>' . $failedTestName . ' => returned: (' .
+          print_r($failedTestResult, true) . ')' . '</li>';
       }
       $output .= '</div>';
       $output .= '<hr />';

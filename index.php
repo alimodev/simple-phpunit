@@ -15,4 +15,5 @@
   <li><a href="examples/test-05.php">Multiple Instances</a></li>
   <li><a href="examples/test-06.php">Add Test Functions with Pattern</a></li>
   <li><a href="examples/test-07.php">JSON Report</a></li>
+  <li><a href="examples/test-08.php">Working with Asserts</a></li>
 </ol>
