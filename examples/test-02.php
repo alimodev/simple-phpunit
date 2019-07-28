@@ -3,8 +3,7 @@
 /**
  * Basic Usage Example
  */
-
-require_once('../src/UnitTest.class.php');
+require_once('../src/loader.php');
 require_once('testFunctions.php');
 
 $unit = new UnitTest('Basic');
@@ -21,9 +20,10 @@ $unit->removeTestFunc('testThatReturnsNull');
 
 $unit->run();
 
-$unit->printSummary();
-$unit->printTests();
-$unit->printStats();
+ReportWeb::setInstance($unit);
+ReportWeb::printSummary();
+ReportWeb::printTests();
+ReportWeb::printStats();
 
 ?>
 <br />

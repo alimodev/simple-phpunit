@@ -3,8 +3,7 @@
 /**
  * Essential Usage Example
  */
-
-require_once('../src/UnitTest.class.php');
+require_once('../src/loader.php');
 require_once('testFunctions.php');
 
 $unit = new UnitTest();
@@ -19,7 +18,8 @@ $unit->addTestFunc('timelyTestThatReturnsTrue');
 
 $unit->run();
 
-$unit->printStats();
+ReportWeb::setInstance($unit);
+ReportWeb::printStats();
 
 ?>
 <br />

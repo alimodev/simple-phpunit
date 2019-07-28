@@ -3,8 +3,7 @@
 /**
  * Run last test only
  */
-
-require_once('../src/UnitTest.class.php');
+require_once('../src/loader.php');
 require_once('testFunctions.php');
 
 $unit = new UnitTest();
@@ -22,9 +21,10 @@ $unit->runLastTest();
 $unit->runFirstTest();
 $unit->runThisTest('testThatReturnsNumber');
 
-$unit->printSummary();
-$unit->printTests();
-$unit->printStats();
+ReportWeb::setInstance($unit);
+ReportWeb::printSummary();
+ReportWeb::printTests();
+ReportWeb::printStats();
 
 ?>
 <br />

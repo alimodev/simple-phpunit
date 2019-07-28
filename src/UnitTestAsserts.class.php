@@ -1,23 +1,11 @@
 <?php
 
-spl_autoload_register(function($className){
-	foreach (glob(__DIR__ . '/*', GLOB_ONLYDIR) as $dir)
-	{
-		$classFile = "$dir/" . $className . '.php';
-		if (file_exists($classFile))
-		{
-			require_once($classFile);
-			break;
-		}
-	}
-});
-
 require_once('UnitTest.class.php');
 
 class UnitTestAsserts extends UnitTest
 {
   /**
-   * Object Decleration
+   * properties
    */
   private $calledAssertsStack = array();
 

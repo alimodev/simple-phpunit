@@ -1,6 +1,22 @@
 <?php
 
 /**
+ * َAutoloader
+ * for Interfaces, Asserts
+ */
+spl_autoload_register(function($className){
+	foreach (glob(__DIR__ . '/*', GLOB_ONLYDIR) as $dir)
+	{
+		$classFile = "$dir/" . $className . '.php';
+		if (file_exists($classFile))
+		{
+			require_once($classFile);
+			break;
+		}
+	}
+});
+
+/**
  * Unit Testing Class
  * by ALireza Mortazavi
  * https://github.com/alimodev/
@@ -8,7 +24,7 @@
 class UnitTest
 {
   /**
-   * Object Decleration
+   * Properties
    */
   public $maxExecutionTime = 100; // in seconds, 0 for unlimited
   public $memoryLimit = '128M';
@@ -24,6 +40,10 @@ class UnitTest
   protected $testFunctions = array();
   protected $passedTests = array();
   protected $failedTests = array();
+
+  /**
+   * Constructor
+   */
 
   function __construct($instanceName = '')
   {
@@ -119,14 +139,14 @@ class UnitTest
     return $this->testFunctions;
   }
 
-  public function printTests()
+  public function getPassedTests()
   {
-    echo $this->generateTestsList();
+    return $this->passedTests;
   }
 
-  public function printStats()
+  public function getFailedTests()
   {
-    echo $this->generateStats();
+    return $this->failedTests;
   }
 
   public function allTestsPassed()
@@ -148,25 +168,24 @@ class UnitTest
     return count($this->failedTests);
   }
 
-  public function printSummary()
+  public function getElapsedTestTime()
   {
-    echo $this->generateSummary();
+    return $this->elapsedTestTime;
   }
 
-  public function getReportArray()
+  public function getMemoryUsage()
   {
-    return $this->generateReportArray();
+    return $this->memoryUsage;
   }
 
-  public function getJsonReport()
+  public function getPeakMemoryUsage()
   {
-    return json_encode($this->getReportArray());
+    return $this->peakMemoryUsage;
   }
 
-  public function printJsonReport()
+  public function getTestGroupName()
   {
-    header('Content-type: application/json');
-    echo $this->getJsonReport();
+    return $this->testGroupName;
   }
 
   /**
@@ -259,51 +278,6 @@ class UnitTest
     }
   }
 
-  private function getTestGroupNameIfExists()
-  {
-    return (!empty($this->testGroupName)) ?
-      '['.$this->testGroupName.'] ' : '';
-  }
-
-  private function generateSummary()
-  {
-    $output = '';
-
-    if ($this->allTestsPassed())
-    {
-      $output .= '<h1 style="color:green">';
-      $output .= $this->getTestGroupNameIfExists();
-      $output .= 'All Unit Tests Passed Successfully! ('.
-        $this->passedTestsCount().')</h1>';
-    } else {
-      $output .= '<h1 style="color:red">';
-      $output .= $this->getTestGroupNameIfExists();
-      $output .= 'Test Failed! ('.
-        $this->failedTestsCount().')</h1>';
-    }
-
-    return $output;
-  }
-
-  private function generateTestsList()
-  {
-    $output = '';
-
-    $output .= '<h2>';
-    $output .= $this->getTestGroupNameIfExists();
-    $output .= 'Unit Tests (' . count($this->getTests()) . ')</h2>';
-    $output .= '<ul>';
-    foreach($this->getTests() as $testFunc)
-    {
-      $testName = array_keys($testFunc)[0];
-      $testArgs = $testFunc[$testName];
-      $output .= '<li>' . $testName . $this->getFormattedArgs($testArgs) . '</li>';
-    }
-    $output .= '</ul>';
-
-    return $output;
-  }
-
   private function getFormattedArgs($args)
   {
     return '( ' . $this->formatArgs($args) . ' )';
@@ -318,128 +292,6 @@ class UnitTest
       $formatted .= ', ';
     }
     return trim(trim($formatted), ',');
-  }
-
-  private function generateStats()
-  {
-    $output = '';
-    $output .= $this->generateStatsSummary();
-    $output .= $this->generateStatsFailedReport();
-    $output .= $this->generateStatsResourceUsage();
-
-    return $output;
-  }
-
-  private function generateReportArray()
-  {
-    $report = array();
-
-    $report['allTestsPassed'] = $this->allTestsPassed();
-    $report['testGroupName'] = $this->testGroupName;
-    $report['totalTestsCount'] = count($this->testFunctions);
-    $report['ExecutedTestsCount'] = (count($this->passedTests) + count($this->failedTests));
-    $report['passedTestsCount'] = count($this->passedTests);
-    $report['failedTestsCount'] = count($this->failedTests);
-    $report['failedTests'] = $this->failedTests;
-    $report['elapsedTestTime'] = $this->elapsedTestTime;
-    $report['memoryUsage'] = $this->formatBytes($this->memoryUsage);
-    $report['peakMemoryUsage'] = $this->formatBytes($this->peakMemoryUsage);
-
-    return $report;
-  }
-
-  private function generateStatsSummary()
-  {
-    $output = '';
-    $output .= '<h2>';
-    $output .= $this->getTestGroupNameIfExists();
-    $output .= 'Unit Test Stats</h2>';
-    $output .= '<hr />';
-    $output .= '<table>';
-    $output .= '<tr style="color:#444"><td>Total Tests:</td>';
-		$output .= '<td>' . count($this->testFunctions) . '</td>';
-    $output .= '</tr><tr style="color:#0d0df3"><td>Executed Tests:</td>';
-    $output .= '<td>' . (count($this->passedTests) + count($this->failedTests)) . '</td>';
-    $output .= '</tr><tr style="color:#609424"><td>Passed Tests:</td>';
-		$output .= '<td>' . count($this->passedTests) . '</td>';
-    $output .= '</tr><tr style="color:#e21919"><td>Failed Tests:</td>';
-		$output .= '<td>' . count($this->failedTests) . '</td>';
-    $output .= '</tr></table>';
-    $output .= '<hr />';
-
-    return $output;
-  }
-
-  private function generateStatsFailedReport()
-  {
-    $countFailedTests = count($this->failedTests);
-
-    $output = '';
-    if ($countFailedTests > 0)
-    {
-      $output .= '<h4 style="color:#bd144d">Failed Test:</h4>';
-      $output .= '<div style="color:red"><ul>';
-      foreach ($this->failedTests as $failedTestName => $failedTestResult)
-      {
-        if ($failedTestResult === false) {$failedTestResult = 'false';}
-        if ($failedTestResult === true) {$failedTestResult = 'true';}
-        $output .= '<li>' . $failedTestName . ' => returned: (' .
-          print_r($failedTestResult, true) . ')' . '</li>';
-      }
-      $output .= '</div>';
-      $output .= '<hr />';
-    }
-
-    return $output;
-  }
-
-  private function generateStatsResourceUsage()
-  {
-    $output = '';
-    $output .= '<table style="color:#333"><tr>';
-    $output .= '<td>Elapsed Test Time:</td>';
-    $output .= '<td>' . $this->elapsedTestTime . '</td>';
-    $output .= '</tr><tr><td>Memory Usage:</td>';
-    $output .= '<td>' . $this->formatBytes($this->memoryUsage) . '</td>';
-    $output .= '</tr><tr><td>Peak Memory Usage:</td>';
-    $output .= '<td>' . $this->formatBytes($this->peakMemoryUsage) . '</td>';
-    $output .= '</tr><tr><td>Used Configs:</td>';
-    $output .= '<td>' . $this->generateConfigsString() . '</td>';
-    $output .= '</tr></table>';
-    $output .= '<hr /><br /><br />';
-
-    return $output;
-  }
-
-  private function generateConfigsString()
-  {
-    $errorReportingStatus = ($this->errorReporting) ? "enabled" : "disabled";
-    $debuggingStatus = ($this->debugging) ? "enabled" : "disabled";
-    $maxExecutionTime = ($this->maxExecutionTime != 0) ?
-      $this->maxExecutionTime . 's' : 'unlimited';
-
-    $output = '';
-    $output .= '( Max Execution Time: ' . $maxExecutionTime . ' - ';
-    $output .= 'Memory Limit: ' . $this->memoryLimit . ' - ';
-    $output .= 'Error Reporting: ' . $errorReportingStatus . ' - ';
-    $output .= 'Debugging: ' . $debuggingStatus . ' )';
-
-    return $output;
-  }
-
-  private function formatBytes($bytes, $precision = 2)
-  {
-    $units = array('B', 'KB', 'MB', 'GB', 'TB');
-
-    $bytes = max($bytes, 0);
-    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-    $pow = min($pow, count($units) - 1);
-
-    // Uncomment one of the following alternatives
-     $bytes /= pow(1024, $pow);
-    // $bytes /= (1 << (10 * $pow));
-
-    return round($bytes, $precision) . ' ' . $units[$pow];
   }
 
   private function calcElapsedTime($startTime)
@@ -460,9 +312,25 @@ class UnitTest
 
   private function calcMemoryUsage()
   {
-    $this->memoryUsage = memory_get_usage();
-    $this->peakMemoryUsage = memory_get_peak_usage();
+    $this->memoryUsage = $this->formatBytes(memory_get_usage());
+    $this->peakMemoryUsage = $this->formatBytes(memory_get_peak_usage());
   }
+
+  private function formatBytes($bytes, $precision = 2)
+  {
+    $units = array('B', 'KB', 'MB', 'GB', 'TB');
+
+    $bytes = max($bytes, 0);
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow = min($pow, count($units) - 1);
+
+    // Uncomment one of the following alternatives
+     $bytes /= pow(1024, $pow);
+    // $bytes /= (1 << (10 * $pow));
+
+    return round($bytes, $precision) . ' ' . $units[$pow];
+  }
+
 }
 
 ?>

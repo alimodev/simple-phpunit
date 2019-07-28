@@ -3,8 +3,7 @@
 /**
  * JSON Output
  */
-
-require_once('../src/UnitTest.class.php');
+require_once('../src/loader.php');
 require_once('testFunctions.php');
 
 $unit = new UnitTest('API');
@@ -13,5 +12,5 @@ $unit->addTestFuncsWithPattern('test*');
 
 $unit->run();
 
-$unit->printJsonReport();
-?>
+ReportJson::setInstance($unit);
+ReportJson::printStats();

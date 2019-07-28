@@ -3,8 +3,7 @@
 /**
  * Asserts
  */
-
-require_once('../src/UnitTestAsserts.class.php');
+require_once('../src/loader.php');
 require_once('testFunctions.php');
 
 $unit = new UnitTestAsserts('Asserts');
@@ -20,7 +19,9 @@ $unit->addTestFuncsWithPattern('timely*')->assertNotTrue();
 
 $unit->run();
 
-$unit->printStats();
+ReportWeb::setInstance($unit);
+ReportWeb::printStats();
+
 ?>
 <br />
 <a href="../index.php">Go back..</a>
