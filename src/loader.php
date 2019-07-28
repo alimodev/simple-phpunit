@@ -3,11 +3,12 @@
 /**
  * Loading UnitTest classes
  */
-require_once('UnitTest.class.php');
-require_once('UnitTestAsserts.class.php');
-
-/**
- * Loading Report classes
- */
-require_once('ReportWeb.class.php');
-require_once('ReportJson.class.php');
+spl_autoload_register(function($className){
+	$className = explode('\\', $className);
+  $className = end($className);
+	$classFile = __DIR__ . DIRECTORY_SEPARATOR . $className . '.class.php';
+	if (file_exists($classFile))
+	{
+		require_once($classFile);
+	}
+});
