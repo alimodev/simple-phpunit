@@ -2,7 +2,7 @@
 
 namespace Alimodev;
 
-class ReportWeb implements ReportsInterface
+class ReportCli implements ReportsInterface
 {
   /**
    * Properties
@@ -24,6 +24,10 @@ class ReportWeb implements ReportsInterface
 
   public static function printTests()
   {
+    if (!headers_sent())
+    {
+      header("Content-Type:text/plain");
+    }
     echo self::generateTestsList();
   }
 
@@ -34,6 +38,10 @@ class ReportWeb implements ReportsInterface
 
   public static function printStats()
   {
+    if (!headers_sent())
+    {
+      header("Content-Type:text/plain");
+    }
     echo self::generateStats();
   }
 
@@ -44,6 +52,10 @@ class ReportWeb implements ReportsInterface
 
   public static function printSummary()
   {
+    if (!headers_sent())
+    {
+      header("Content-Type:text/plain");
+    }
     echo self::generateSummary();
   }
   /**
@@ -58,20 +70,18 @@ class ReportWeb implements ReportsInterface
   private static function generateSummary()
   {
     $output = '';
-
+    $output .= "\n";
+    $output .= self::getTestGroupNameIfExists();
     if (self::$instance->allTestsPassed())
     {
-      $output .= '<h1 style="color:green">';
-      $output .= self::getTestGroupNameIfExists();
-      $output .= 'All Unit Tests Passed Successfully! ('.
-        self::$instance->passedTestsCount().')</h1>';
+      $output .= 'All Unit Tests Passed Successfully! ';
     } else {
-      $output .= '<h1 style="color:red">';
-      $output .= self::getTestGroupNameIfExists();
-      $output .= 'Test Failed! ('.
-        self::$instance->failedTestsCount().')</h1>';
+      $output .= 'Test Failed! ';
     }
-
+    $output .= '('. self::$instance->failedTestsCount() . ')';
+    $output .= "\n";
+    $output .= '--------------------------------------------------------------';
+    $output .= "\n";
     return $output;
   }
 
@@ -79,17 +89,20 @@ class ReportWeb implements ReportsInterface
   {
     $output = '';
 
-    $output .= '<h2>';
     $output .= self::getTestGroupNameIfExists();
-    $output .= 'Unit Tests (' . count(self::$instance->getTests()) . ')</h2>';
-    $output .= '<ul>';
+    $output .= 'Unit Tests (' . count(self::$instance->getTests()) . ')';
+    $output .= "\n";
+    $output .= '--------------------------------------------------------------';
+    $output .= "\n\n";
     foreach(self::$instance->getTests() as $testFunc)
     {
       $testName = array_keys($testFunc)[0];
       $testArgs = $testFunc[$testName];
-      $output .= '<li>' . $testName . self::getFormattedArgs($testArgs) . '</li>';
+      $output .= "\t" . $testName . self::getFormattedArgs($testArgs) . "\n";
     }
-    $output .= '</ul>';
+    $output .= "\n";
+    $output .= '--------------------------------------------------------------';
+    $output .= "\n";
 
     return $output;
   }
@@ -123,21 +136,20 @@ class ReportWeb implements ReportsInterface
   private static function generateStatsSummary()
   {
     $output = '';
-    $output .= '<h2>';
+    $output .= "\n";
     $output .= self::getTestGroupNameIfExists();
-    $output .= 'Unit Test Stats</h2>';
-    $output .= '<hr />';
-    $output .= '<table>';
-    $output .= '<tr style="color:#444"><td>Total Tests:</td>';
-		$output .= '<td>' . count(self::$instance->getTests()) . '</td>';
-    $output .= '</tr><tr style="color:#0d0df3"><td>Executed Tests:</td>';
-    $output .= '<td>' . (count(self::$instance->getPassedTests()) + count(self::$instance->getFailedTests())) . '</td>';
-    $output .= '</tr><tr style="color:#609424"><td>Passed Tests:</td>';
-		$output .= '<td>' . count(self::$instance->getPassedTests()) . '</td>';
-    $output .= '</tr><tr style="color:#e21919"><td>Failed Tests:</td>';
-		$output .= '<td>' . count(self::$instance->getFailedTests()) . '</td>';
-    $output .= '</tr></table>';
-    $output .= '<hr />';
+    $output .= 'Unit Test Stats';
+    $output .= "\n";
+    $output .= '--------------------------------------------------------------';
+    $output .= "\n";
+    $output .= "   Total Tests:\t\t". count(self::$instance->getTests()) . "\n";
+    $output .= "   Executed Tests:\t" .
+      (count(self::$instance->getPassedTests()) + count(self::$instance->getFailedTests())) .
+      "\n";
+    $output .= "   Passed Tests:\t" . count(self::$instance->getPassedTests()) . "\n";
+    $output .= "   Failed Tests:\t" . count(self::$instance->getFailedTests()) . "\n";
+    $output .= '--------------------------------------------------------------';
+    $output .= "\n";
 
     return $output;
   }
@@ -149,17 +161,17 @@ class ReportWeb implements ReportsInterface
     $output = '';
     if ($countFailedTests > 0)
     {
-      $output .= '<h4 style="color:#bd144d">Failed Tests:</h4>';
-      $output .= '<div style="color:red"><ul>';
+      $output .= "   Failed Tests:\n\n";
       foreach (self::$instance->getFailedTests() as $failedTestName => $failedTestResult)
       {
         if ($failedTestResult === false) {$failedTestResult = 'false';}
         if ($failedTestResult === true) {$failedTestResult = 'true';}
-        $output .= '<li>' . $failedTestName . ' => returned: (' .
-          print_r($failedTestResult, true) . ')' . '</li>';
+        $output .= "\t" . $failedTestName . ' => returned: (' .
+          print_r($failedTestResult, true) . ')' . "\n";
       }
-      $output .= '</div>';
-      $output .= '<hr />';
+      $output .= "\n";
+      $output .= '--------------------------------------------------------------';
+      $output .= "\n";
     }
 
     return $output;
@@ -168,17 +180,12 @@ class ReportWeb implements ReportsInterface
   private static function generateStatsResourceUsage()
   {
     $output = '';
-    $output .= '<table style="color:#333"><tr>';
-    $output .= '<td>Elapsed Test Time:</td>';
-    $output .= '<td>' . self::$instance->getElapsedTestTime() . '</td>';
-    $output .= '</tr><tr><td>Memory Usage:</td>';
-    $output .= '<td>' . self::$instance->getMemoryUsage() . '</td>';
-    $output .= '</tr><tr><td>Peak Memory Usage:</td>';
-    $output .= '<td>' . self::$instance->getPeakMemoryUsage() . '</td>';
-    $output .= '</tr><tr><td>Used Configs:</td>';
-    $output .= '<td>' . self::generateConfigsString() . '</td>';
-    $output .= '</tr></table>';
-    $output .= '<hr /><br /><br />';
+    $output .= "   Elapsed Test Time:\t" . self::$instance->getElapsedTestTime() . "\n";
+    $output .= "   Memory Usage:\t" . self::$instance->getMemoryUsage() . "\n";
+    $output .= "   Peak Memory Usage:\t" . self::$instance->getPeakMemoryUsage() . "\n";
+    $output .= "   Used Configs:\t" . self::generateConfigsString() . "\n";
+    $output .= '--------------------------------------------------------------';
+    $output .= "\n";
 
     return $output;
   }

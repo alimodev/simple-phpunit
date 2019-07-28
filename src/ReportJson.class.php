@@ -24,7 +24,10 @@ class ReportJson implements ReportsInterface
 
   public static function printTests()
   {
-    header('Content-type: application/json');
+    if (!headers_sent())
+    {
+      header('Content-type: application/json');
+    }
     echo self::fetchTests();
   }
 
@@ -35,7 +38,10 @@ class ReportJson implements ReportsInterface
 
   public static function printStats()
   {
-    header('Content-type: application/json');
+    if (!headers_sent())
+    {
+      header('Content-type: application/json');
+    }
     echo self::fetchStats();
   }
 
@@ -46,7 +52,10 @@ class ReportJson implements ReportsInterface
 
   public static function printSummary()
   {
-    header('Content-type: application/json');
+    if (!headers_sent())
+    {
+      header('Content-type: application/json');
+    }
     echo self::fetchSummary();
   }
   /**
