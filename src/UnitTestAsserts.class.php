@@ -1,8 +1,15 @@
 <?php
 
-spl_autoload_register(function($class){
-	$classPath = str_replace('\\', '/', $class);
-	include __DIR__ . '/asserts/' . $classPath . '.php';
+spl_autoload_register(function($className){
+	foreach (glob(__DIR__ . '/*', GLOB_ONLYDIR) as $dir)
+	{
+		$classFile = "$dir/" . $className . '.php';
+		if (file_exists($classFile))
+		{
+			require_once($classFile);
+			break;
+		}
+	}
 });
 
 require_once('UnitTest.class.php');
