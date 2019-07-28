@@ -1,6 +1,6 @@
 <?php
 
-class assertEquals
+class assertEquals implements AssertsInterface
 {
   /**
    * Object Decleration

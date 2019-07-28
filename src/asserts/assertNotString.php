@@ -1,6 +1,6 @@
 <?php
 
-class assertNotString
+class assertNotString implements AssertsInterface
 {
   /**
    * Object Decleration

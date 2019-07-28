@@ -1,6 +1,6 @@
 <?php
 
-class assertTrue
+class assertTrue implements AssertsInterface
 {
   /**
    * Object Decleration

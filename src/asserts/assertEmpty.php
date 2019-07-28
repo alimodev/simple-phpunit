@@ -1,6 +1,6 @@
 <?php
 
-class assertEmpty
+class assertEmpty implements AssertsInterface
 {
   /**
    * Object Decleration
