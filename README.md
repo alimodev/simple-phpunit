@@ -49,6 +49,11 @@ Alimodev\ReportWeb::printTests();
 Alimodev\ReportWeb::printStats();
 ```
 
+##### Available Report Formats
+* WEB (Alimodev\ReportWeb)
+* JSON (Alimodev\ReportJson)
+* CLI (Alimodev\ReportCli)
+
 ## Using Asserts
 
 You can use asserts if you need more control over how you want to evaluate the test results. For Using asserts, you have to create an instance of 'Alimodev\UnitTestAsserts()'.
@@ -76,6 +81,7 @@ Here is the list of all the examples you can find in the project:
 6. Add Test Functions with Pattern
 7. JSON Report
 8. Working with Asserts
+9. Running Tests from CLI
 
 ## Authors
 
