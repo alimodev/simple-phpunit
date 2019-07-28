@@ -1,5 +1,7 @@
 <?php
 
+namespace Alimodev;
+
 interface ReportsInterface
 {
   public static function setInstance($instance);

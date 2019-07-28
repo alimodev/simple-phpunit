@@ -1,6 +1,8 @@
 <?php
 
-class assertNotEquals implements AssertsInterface
+namespace Alimodev;
+
+class assertNull implements AssertsInterface
 {
   /**
    * Object Decleration
@@ -26,7 +28,7 @@ class assertNotEquals implements AssertsInterface
    */
    private function doAssertion($runResult, ...$assertFuncArgs)
    {
-     $this->assertion = ($runResult !== $assertFuncArgs[0]);
+     $this->assertion = ($runResult === null);
    }
 
 }

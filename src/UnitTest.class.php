@@ -1,10 +1,13 @@
 <?php
 
+namespace Alimodev;
+
 /**
  * َAutoloader
  * for Interfaces, Asserts
  */
 spl_autoload_register(function($className){
+	$className = str_replace("\\", DIRECTORY_SEPARATOR, $className);
 	foreach (glob(__DIR__ . '/*', GLOB_ONLYDIR) as $dir)
 	{
 		$classFile = "$dir/" . $className . '.php';

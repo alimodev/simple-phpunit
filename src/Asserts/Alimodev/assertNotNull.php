@@ -1,6 +1,8 @@
 <?php
 
-class assertNotNumber implements AssertsInterface
+namespace Alimodev;
+
+class assertNotNull implements AssertsInterface
 {
   /**
    * Object Decleration
@@ -26,7 +28,7 @@ class assertNotNumber implements AssertsInterface
    */
    private function doAssertion($runResult, ...$assertFuncArgs)
    {
-     $this->assertion = !is_numeric($runResult);
+     $this->assertion = ($runResult !== null);
    }
 
 }

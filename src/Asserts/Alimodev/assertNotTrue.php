@@ -1,6 +1,8 @@
 <?php
 
-class assertNotString implements AssertsInterface
+namespace Alimodev;
+
+class assertNotTrue implements AssertsInterface
 {
   /**
    * Object Decleration
@@ -26,7 +28,7 @@ class assertNotString implements AssertsInterface
    */
    private function doAssertion($runResult, ...$assertFuncArgs)
    {
-     $this->assertion = !is_string($runResult);
+     $this->assertion = ($runResult !== true);
    }
 
 }

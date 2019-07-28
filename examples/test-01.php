@@ -6,7 +6,7 @@
 require_once('../src/loader.php');
 require_once('testFunctions.php');
 
-$unit = new UnitTest();
+$unit = new Alimodev\UnitTest();
 
 $unit->addTestFunc('testThatReturnsTrue');
 $unit->addTestFunc('testThatReturnsFalse');
@@ -18,8 +18,8 @@ $unit->addTestFunc('timelyTestThatReturnsTrue');
 
 $unit->run();
 
-ReportWeb::setInstance($unit);
-ReportWeb::printStats();
+Alimodev\ReportWeb::setInstance($unit);
+Alimodev\ReportWeb::printStats();
 
 ?>
 <br />

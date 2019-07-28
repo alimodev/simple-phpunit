@@ -1,6 +1,8 @@
 <?php
 
-class assertEquals implements AssertsInterface
+namespace Alimodev;
+
+class assertEmpty implements AssertsInterface
 {
   /**
    * Object Decleration
@@ -26,7 +28,7 @@ class assertEquals implements AssertsInterface
    */
    private function doAssertion($runResult, ...$assertFuncArgs)
    {
-     $this->assertion = ($runResult === $assertFuncArgs[0]);
+     $this->assertion = empty($runResult);
    }
 
 }

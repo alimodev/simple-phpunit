@@ -6,7 +6,7 @@
 require_once('../src/loader.php');
 require_once('testFunctions.php');
 
-$unit = new UnitTestAsserts('Asserts');
+$unit = new Alimodev\UnitTestAsserts('Asserts');
 
 $unit->addTestFunc('testThatReturnsTrue')->assertTrue();
 $unit->addTestFunc('testThatReturnsFalse')->assertFalse();
@@ -19,8 +19,8 @@ $unit->addTestFuncsWithPattern('timely*')->assertNotTrue();
 
 $unit->run();
 
-ReportWeb::setInstance($unit);
-ReportWeb::printStats();
+Alimodev\ReportWeb::setInstance($unit);
+Alimodev\ReportWeb::printStats();
 
 ?>
 <br />

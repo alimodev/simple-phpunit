@@ -1,5 +1,7 @@
 <?php
 
+namespace Alimodev;
+
 require_once('UnitTest.class.php');
 
 class UnitTestAsserts extends UnitTest
@@ -57,7 +59,8 @@ class UnitTestAsserts extends UnitTest
     $testNameWithAssertName = $formattedTestName . ' [ ' . $assertFuncName . ' ] ';
 
     // running the assert function with it's args and the test result
-    $assertInstance = new $assertFuncName();
+    $assertNameWithNameSpace = 'Alimodev\\' . $assertFuncName;
+    $assertInstance = new $assertNameWithNameSpace();
     $assertResult = $assertInstance->getResult($runResult, ...$assertFuncArgs);
     if ($assertResult)
     {

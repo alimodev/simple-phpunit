@@ -1,6 +1,8 @@
 <?php
 
-class assertNotArray implements AssertsInterface
+namespace Alimodev;
+
+class assertNotNumber implements AssertsInterface
 {
   /**
    * Object Decleration
@@ -26,7 +28,7 @@ class assertNotArray implements AssertsInterface
    */
    private function doAssertion($runResult, ...$assertFuncArgs)
    {
-     $this->assertion = !is_array($runResult);
+     $this->assertion = !is_numeric($runResult);
    }
 
 }

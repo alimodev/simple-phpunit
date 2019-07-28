@@ -1,6 +1,8 @@
 <?php
 
-class assertNotEmpty implements AssertsInterface
+namespace Alimodev;
+
+class assertString implements AssertsInterface
 {
   /**
    * Object Decleration
@@ -26,7 +28,7 @@ class assertNotEmpty implements AssertsInterface
    */
    private function doAssertion($runResult, ...$assertFuncArgs)
    {
-     $this->assertion = !empty($runResult);
+     $this->assertion = is_string($runResult);
    }
 
 }

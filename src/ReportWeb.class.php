@@ -1,5 +1,7 @@
 <?php
 
+namespace Alimodev;
+
 class ReportWeb implements ReportsInterface
 {
   /**
